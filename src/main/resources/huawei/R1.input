@@ -1,0 +1,4 @@
+(mul 3 -7)
+(add 1 2)
+(sub (mul 2 4) (div 9 3))
+(div 1 0)
