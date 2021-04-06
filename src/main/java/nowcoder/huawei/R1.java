@@ -3,7 +3,6 @@ package nowcoder.huawei;
 
 import nowcoder.CaseRunner;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +50,26 @@ public class R1 {
                 char c = input.charAt(i);
                 char fc = sb.length() > 0 ? sb.charAt(0) : 0;
                 if (fc == ' ') {
+                    clear(sb);
+                    sb.append(c);
+                } else if (fc >= 'a' && fc <= 'z') {
+                    if (c >= 'a' && c <= 'z') {
+                        sb.append(c);
+                    } else {
+                        result.add(sb.toString());
+                        clear(sb);
+                        sb.append(c);
+                    }
+                } else if (fc == '-' || (fc >= '0' && fc <= '9')) {
+                    if (c >= '0' && c <= '9') {
+                        sb.append(c);
+                    } else {
+                        result.add(Integer.parseInt(sb.toString()));
+                        clear(sb);
+                        sb.append(c);
+                    }
+                }else if(fc == '(' || fc == ')'){
+                    result.add(sb.toString());
                     clear(sb);
                     sb.append(c);
                 }
