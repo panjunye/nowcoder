@@ -1,7 +1,12 @@
 package nowcoder.huawei;
 
 
+import nowcoder.CaseRunner;
+
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -21,26 +26,40 @@ import java.util.Scanner;
  */
 public class R1 {
     public static void main(String[] args) {
-        PrintStream stdOut = System.out;
-        InputStream stdIn = System.in;
-
-        InputStream inputStream = R1.class.getClassLoader().getResourceAsStream("huawei/R1.input");
-        System.setIn(inputStream);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
-        new Solution().run();
-        System.setIn(stdIn);
-        System.setOut(stdOut);
-        System.out.println(new String(outputStream.toByteArray()));
+        new CaseRunner().run(R1.class);
     }
 
-    static class Solution {
+    public static class Solution {
         public void run() {
             Scanner in = new Scanner(System.in);
             // 注意 hasNext 和 hasNextLine 的区别
             while (in.hasNextLine()) { // 注意 while 处理多个 case
-
+                String input = in.nextLine();
+                List<Object> tokenizerResult = tokenizer(input);
+                System.out.println(tokenizerResult);
             }
+        }
+
+        private List<Object> tokenizer(String input) {
+            if (input == null || input.isEmpty()) {
+                return Collections.emptyList();
+            }
+            List<Object> result = new ArrayList<>();
+            StringBuilder sb = new StringBuilder();
+            sb.append(input.charAt(0));
+            for (int i = 0; i < input.length(); i++) {
+                char c = input.charAt(i);
+                char fc = sb.length() > 0 ? sb.charAt(0) : 0;
+                if (fc == ' ') {
+                    clear(sb);
+                    sb.append(c);
+                }
+            }
+            return result;
+        }
+
+        private void clear(StringBuilder sb) {
+            sb.delete(0, sb.length());
         }
     }
 }
