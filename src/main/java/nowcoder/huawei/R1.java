@@ -3,10 +3,8 @@ package nowcoder.huawei;
 
 import nowcoder.CaseRunner;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * LISP语言唯一的语法就是括号要配对。
@@ -34,21 +32,69 @@ public class R1 {
             // 注意 hasNext 和 hasNextLine 的区别
             while (in.hasNextLine()) { // 注意 while 处理多个 case
                 String input = in.nextLine();
-                List<Object> tokenizerResult = tokenizer(input);
-                System.out.println(tokenizerResult);
+                List<Object> tokens = tokenize(input);
+                Stack<String> operators = new Stack<>();
+                Deque<Object> queue = new LinkedBlockingDeque<>();
+                for (Object token : tokens) {
+                    if (token instanceof Integer) {
+                        queue.offerLast(token);
+                    } else {
+                        String operator = (String) token;
+                        if ("(".equals(operator)) {
+                            // do nothing
+                        } else if (")".equals(operator)) {
+                            queue.offerLast(operators.pop());
+                        } else {
+                            operators.push(operator);
+                        }
+                    }
+                }
+                Stack<Integer> operands = new Stack<>();
+                while (!queue.isEmpty()) {
+                    Object token = queue.removeFirst();
+                    if (token instanceof Integer) {
+                        operands.push((Integer) token);
+                    } else {
+                        String operator = (String) token;
+                        Integer operand2 = operands.pop();
+                        Integer operand1 = operands.pop();
+                        if("div".equals(operator) && operand2.equals(0)){
+                            System.out.println("error");
+                            break;
+                        }
+                        Integer result = calculate(operator, operand1, operand2);
+                        operands.push(result);
+                    }
+                }
+                if(!operands.isEmpty()){
+                    System.out.println(operands.pop());
+                }
             }
         }
 
-        private List<Object> tokenizer(String input) {
+        private static Integer calculate(String operator, Integer operand1, Integer operand2) {
+            switch (operator) {
+                case "mul":
+                    return operand1 * operand2;
+                case "add":
+                    return operand1 + operand2;
+                case "div":
+                    return operand1 / operand2;
+                default:
+                    return operand1 - operand2;
+            }
+        }
+
+        private List<Object> tokenize(String input) {
             if (input == null || input.isEmpty()) {
                 return Collections.emptyList();
             }
             List<Object> result = new ArrayList<>();
             StringBuilder sb = new StringBuilder();
             sb.append(input.charAt(0));
-            for (int i = 0; i < input.length(); i++) {
-                char c = input.charAt(i);
-                char fc = sb.length() > 0 ? sb.charAt(0) : 0;
+            for (int i = 1; i <= input.length(); i++) {
+                char c = i < input.length() ? input.charAt(i) : 0;
+                char fc = sb.charAt(0);
                 if (fc == ' ') {
                     clear(sb);
                     sb.append(c);
@@ -68,10 +114,13 @@ public class R1 {
                         clear(sb);
                         sb.append(c);
                     }
-                }else if(fc == '(' || fc == ')'){
+                } else if (fc == '(' || fc == ')') {
                     result.add(sb.toString());
                     clear(sb);
                     sb.append(c);
+                } else if (c == 0) {
+                    result.add(sb.toString());
+                    clear(sb);
                 }
             }
             return result;
