@@ -47,11 +47,94 @@ public class R2 {
                 for (int i = 0; i < 5; i++) {
                     String rank = in.next();
                     String suit = in.next();
-                    Card card = new Card(rank,suit);
+                    Card card = new Card(rank, suit);
                     cards.add(card);
                 }
-                System.out.println(cards);
+                cards.sort(Comparator.comparingInt(o -> o.point));
+                System.out.println(getHandType(cards));
+                cards.clear();
             }
+        }
+
+        private int getHandType(List<Card> cards) {
+            if (isStraightFlush(cards)) {
+                return 1;
+            }
+            if (isFourOfKind(cards)) {
+                return 2;
+            }
+            if (isFullHouse(cards)) {
+                return 3;
+            }
+            if (isFlush(cards)) {
+                return 4;
+            }
+            if (isStraight(cards)) {
+                return 5;
+            }
+            if (isThreeOfKind(cards)) {
+                return 6;
+            }
+            return 7;
+        }
+
+        private boolean isThreeOfKind(List<Card> cards) {
+            return (isSameOfKind(cards, 0, 2) && !isPair(cards, 3, 4))
+                    || (isSameOfKind(cards, 1, 3) && !isPair(cards, 0, 4))
+                    || (isSameOfKind(cards, 2, 4) && !isPair(cards, 0, 1));
+        }
+
+        private boolean isFullHouse(List<Card> cards) {
+            return isSameOfKind(cards, 0, 2) && isPair(cards, 3, 4)
+                    || isPair(cards, 0, 1) && isSameOfKind(cards, 2, 4);
+        }
+
+        private boolean isPair(List<Card> cards, int p, int q) {
+            return cards.get(p).point == cards.get(q).point;
+        }
+
+        private boolean isSameOfKind(List<Card> cards, int from, int to) {
+            for (int i = from + 1; i <= to; ++i) {
+                if (!isPair(cards, i, i - 1)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private boolean isFourOfKind(List<Card> cards) {
+            return isSameOfKind(cards, 0, 3) || isSameOfKind(cards, 1, 4);
+        }
+
+        private boolean isStraightFlush(List<Card> cards) {
+            return isStraight(cards) && isFlush(cards);
+        }
+
+        private boolean isFlush(List<Card> cards) {
+            for (int i = 1; i < cards.size(); ++i) {
+                if (!cards.get(i).suit.equals(cards.get(i - 1).suit)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private boolean isStraight(List<Card> cards) {
+            boolean isStraight = true;
+            for (int i = 1; i < cards.size(); i++) {
+                if (cards.get(i).point - cards.get(i - 1).point != 1) {
+                    isStraight = false;
+                    break;
+                }
+            }
+            if (!isStraight) {
+                for (int i = 1; i < cards.size(); ++i) {
+                    if (((cards.get((i + 1) % 5).point + 13) - cards.get(i).point) % 13 != 1) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         public static class Card {
